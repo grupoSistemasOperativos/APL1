@@ -7,7 +7,7 @@ moverArchivos()
     IFS=$'\n';for archivo in $(find "${dirOrigen}" -type f)
     do  
         nombreArchivo=$(grep -o -P "(?<=\/)+.[^\/]*$" <<< "$archivo")
-        extension=$(grep -o -P "(?<=.\.)\w+" <<< "$nombreArchivo")
+        extension=$(grep -o -P "(?<=.\.).+" <<< "$nombreArchivo")
         
         extension=${extension^^}
         mkdir "$dirDestino"/$extension 2> /dev/null
