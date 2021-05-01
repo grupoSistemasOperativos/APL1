@@ -22,8 +22,8 @@ mostrarAyuda()
 guardarEnArchivo ()
 {
     path="$1"
-    ruta=$(grep -o -E "(\w+\/)" <<< "$path" | tr -d '\n')    
-    nombreArchivo=$(grep -o -E "\w+\.\w+" <<< $path)
+    nombreArchivo=$(grep -o -P "(?<=\/).[^\/]*$" <<< "$path")
+    ruta=$(grep -o -P ".*(?=\/)" <<< "$path")
     
     echo "$nombreArchivo        $ruta" >> $2
 }
@@ -125,34 +125,39 @@ do
     #IFS=$'\n'; echo "${array[*]}"
     #exit
     resultado=$(IFS=$'\n'; echo "$(diff -qs --from-file=${array[*]})")
-    echo $resultado
+    #echo "$resultado"
     #echo $resultado
-    #exit
-    iguales=$(grep -e 'are identical' <<< "$resultado" )
-    #echo $iguales
+    iguales=$(grep -o -P "((?<=^Files ).*(?= and ))|(?<= and ).*(?= are identical$)" <<< "$resultado")
+
     if [ $? -eq 0 ]
     then
         hayRepetidos=1
-        #primero=$(cut -d ' ' -f 2 <<< "$iguales" | uniq)
-        #TODO encontrar regex que niege esto
-        archivos=$(grep -o -P "[A-Za-z0-9 ]+\.\w+" <<< "$iguales")
-        primero=$(head -1 <<< "$archivos")
-        #echo "$primero"
+        #archivos=$(sort -r <<< "$iguales" | uniq)
+        #echo "$archivos"
+        #exit
+        #echo ""
+        #archivos=$(grep -o -P "[A-Za-z0-9 ]+\.\w+" <<< "$iguales")
+        #primero=$(head -1 <<< "$archivos")
+        #exit
         #primero=$(grep -o -v " are identical[ ]*| and " <<< "$iguales")
         #echo dada
-        archivos=$(grep -v "$primero" <<< "$archivos")
+        #archivos=$(grep -v "$primero" <<< "$archivos")
         
-        echo $(realpath "$archivos")
-        exit
-        guardarEnArchivo "$primero" "$archivoSalida"
+        #guardarEnArchivo "$primero" "$archivoSalida"
 
-        for repetido in $(cut -d ' ' -f 4 <<< "$iguales")
+        #IFS=$'\n';for archivo in $(grep -v "$primero" <<< "$archivos")
+        IFS=$'\n';for archivo in $(sort -r <<< "$iguales" | uniq)
         do
-            #echo $repetido
-            guardarEnArchivo "$repetido" "$archivoSalida"
+            #echo "$archivo"
+            guardarEnArchivo "$archivo" "$archivoSalida"
+            #echo ""
         done
+        #exit
         echo "" >> "$archivoSalida"
-        mapfile -t array < <(grep -e 'differ' <<< "$resultado" | cut -d ' ' -f 4)
+        #echo $resultado
+        mapfile -t array < <(grep -o -P "(?<= and ).*(?= differ$)" <<< "$resultado")
+        #echo ${array[*]}
+        #exit
     else
         unset array[0]
         mapfile -t array < <(printf '%s\n' "${array[@]}")
