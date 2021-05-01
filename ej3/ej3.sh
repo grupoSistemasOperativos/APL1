@@ -1,4 +1,15 @@
 #!/bin/bash
+
+#    ENCABEZADO
+# NOMBRE DEL SCRIPT : buscarRepetidos.sh
+# APL : 1
+# EJERCICIO N° : 3
+# INTEGRANTES : Axel Kenneth Hellberg 42296528,Tomas Victorio Serravento 42038102,Carolina Luana Huergo 42562990,Axel Joel Cascasi 42200104,Agustin Ratto 42673142
+# ENTREGA : Primera Entrega    
+# FECHA : 28/04/2021
+#
+#
+
 mostrarAyuda()
 {
     if [[ ($1 == "-h") || ($1 == "-help") || ($1 == "-?") ]]
