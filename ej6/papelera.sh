@@ -40,7 +40,13 @@ find directorio 2> /dev/null
 
 if [[ -f "$1" ]]
 then
-    zip -m $HOME/Papelera.zip "$(realpath "$1")"
+    zip -m $HOME/Papelera.zip "$(realpath "$1")" $> /dev/null
+    if [[ $? -eq 0 ]]
+    then
+        echo "$1"" eliminado con exito" 
+    else
+        echo "Error al eliminar archivo"
+    fi
 fi
 
 if [[ "$1" == -r ]]
@@ -49,11 +55,11 @@ then
     repetidos=$(echo $(wc -l <<< "$archivo"))
     if [[ $repetidos > 1 ]]
     then
-        mapfile -t archivos < <(grep -o -P "\w+\.\w+" <<< "$archivo")
+        mapfile -t archivos < <(grep -o -P "(?<=\/)+.[^\/]*$" <<< "$archivo")
         mapfile -t rutas < <(grep -o -P "^.*(?=(\/))" <<< "$archivo")
         for ((i = 0; i < $repetidos; i++))
         do
-            echo $((i+1)) - ${archivos[$i]} $'\t\t' ${rutas[$i]}
+            echo $((i+1)) - "${archivos[$i]}" $'\t\t' ${rutas[$i]}
         done
         echo "¿Qué archivo desea recuperar?:"
         read seleccion
@@ -67,24 +73,35 @@ then
         exit 1
     fi
     
-    unzip -p $HOME/Papelera.zip "$archivo" > /"$archivo"
-    zip -d $HOME/Papelera.zip "$archivo"
+    unzip -p $HOME/Papelera.zip "$archivo" > /"$archivo" &> /dev/null
+    zip -d $HOME/Papelera.zip "$archivo" &> /dev/null
+    if [[ $? -eq 0 ]]
+    then
+        echo "$archivo"" recuperado con exito" 
+    else
+        echo "Error al recuperar archivo"
+    fi
 fi
 
 if [[ "$1" == -e ]]
 then
-    zip -d $HOME/Papelera.zip "*"
+    zip -d $HOME/Papelera.zip "*" &> /dev/null
+    echo "papelera vaciada"
 fi
 
 if [[ "$1" == -l ]]
 then
     archivo=$(unzip -Z1 $HOME/Papelera.zip)
-    cantE=$(echo $(wc -l <<< "$archivo"))
-    mapfile -t archivos < <(grep -o -P "\w+\.\w+" <<< "$archivo")
+    mapfile -t archivos < <(grep -o -P "(?<=\/)+.[^\/]*$" <<< "$archivo")
     mapfile -t rutas < <(grep -o -P "^.*(?=(\/))" <<< "$archivo")
 
-    for ((i = 0; i < $cantE; i++))
+    for ((i = 0; i < ${#archivos[@]}; i++))
     do
         echo ${archivos[$i]} $'\t\t' ${rutas[$i]}
     done
+
+    if [[ ${#archivos[@]} -eq 0 ]]
+    then
+        echo "papelera vacia"
+    fi
 fi
