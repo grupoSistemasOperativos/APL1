@@ -1,5 +1,4 @@
 #!/bin/bash
-#TODO falta carpetas con espacio
 mostrarAyuda()
 {
     if [[ ($1 == "-h") || ($1 == "-help") || ($1 == "-?") ]]
@@ -72,15 +71,12 @@ asignarParametros()
         case $variable in
         -Directorio) 
             directorio="$valor"
-            #echo $variable - $valor
         ;;
         -DirectorioSalida)
             directorioSalida="$valor"
-            #echo $variable - $valor
         ;;
         -Umbral)
             umbral=$valor
-            #echo $variable - $valor
         ;;
         *)
             echo "Error, el nombre del parámetro no coincide con los requeridos. $variable $valor"
@@ -94,15 +90,11 @@ asignarParametros()
 mostrarAyuda $1
 asignarParametros "$1" "$2" "$3" "$4" "$5" "$6"
 validarParametros "$directorio" "$directorioSalida" "$umbral"
-#echo listo
-#exit
 
 #definicion variables
 array=()
 hayRepetidos=0
-#umbral=$2
-#directorio=$1
-#directorioSalida=$3
+
 #verificar que si es dir relativo, lo pase absoluto (para ver path absoluto siempre en salida)
 grep "^/" <<< "$directorio" >> /dev/null
 if [ $? -eq 1 ]
@@ -116,48 +108,25 @@ then
 fi
 #creacion de array con todos los archivos dentro de $directorio
 mapfile -t array < <(echo "$(find $directorio -type f -size +${umbral}k)")
+
 archivoSalida="$directorioSalida/"$(echo "Resultado_[$(date +%Y%m%d%H%m)].log")
 #creacion de archivo en $directorioSalida
 > $archivoSalida
 
 while [[ ${#array[@]} > 1 ]]
 do
-    #IFS=$'\n'; echo "${array[*]}"
-    #exit
     resultado=$(IFS=$'\n'; echo "$(diff -qs --from-file=${array[*]})")
-    #echo "$resultado"
-    #echo $resultado
     iguales=$(grep -o -P "((?<=^Files ).*(?= and ))|(?<= and ).*(?= are identical$)" <<< "$resultado")
 
     if [ $? -eq 0 ]
     then
         hayRepetidos=1
-        #archivos=$(sort -r <<< "$iguales" | uniq)
-        #echo "$archivos"
-        #exit
-        #echo ""
-        #archivos=$(grep -o -P "[A-Za-z0-9 ]+\.\w+" <<< "$iguales")
-        #primero=$(head -1 <<< "$archivos")
-        #exit
-        #primero=$(grep -o -v " are identical[ ]*| and " <<< "$iguales")
-        #echo dada
-        #archivos=$(grep -v "$primero" <<< "$archivos")
-        
-        #guardarEnArchivo "$primero" "$archivoSalida"
-
-        #IFS=$'\n';for archivo in $(grep -v "$primero" <<< "$archivos")
         IFS=$'\n';for archivo in $(sort -r <<< "$iguales" | uniq)
         do
-            #echo "$archivo"
             guardarEnArchivo "$archivo" "$archivoSalida"
-            #echo ""
         done
-        #exit
         echo "" >> "$archivoSalida"
-        #echo $resultado
         mapfile -t array < <(grep -o -P "(?<= and ).*(?= differ$)" <<< "$resultado")
-        #echo ${array[*]}
-        #exit
     else
         unset array[0]
         mapfile -t array < <(printf '%s\n' "${array[@]}")
