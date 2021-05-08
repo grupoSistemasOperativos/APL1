@@ -25,10 +25,41 @@ verificarParametros()
     fi   
     if [[ "$1" != -l && "$1" != -r && "$1" != -e && ! -f "$1" ]]
     then
-        echo "Error de parametros"
+        echo "\"$1\" no es una opcion valida o es un archivo inexistente"
         exit 1
     fi
+
+    if [[ -f "$1" && "$2" != "" ]]
+    then
+        echo "Error, si busca eliminar un archivo, debe enviar como parametro solo [FILE]"
+        exit
+    fi
+
+    if [[ "$1" == -l && "$2" != "" ]]
+    then
+        echo "Error, el parametro \"-l\" debe ser enviado solo"
+        exit
+    fi
+
+    if [[ "$1" == -r && "$2" == "" ]]
+    then
+        echo "Error, el parametro \"-r\" debe estar acompañado de un nombre de archivo"
+        exit
+    fi
+
+    if [[ "$1" == -e && "$2" != "" ]]
+    then
+        echo "Error, el parametro \"-e\" debe ser enviado solo"
+        exit
+    fi
 }
+
+if [[ $# > 2 ]]
+then
+    echo "Error, como maximo se pueden pasar 2 parametros."
+    echo "Indique -h para obtener mas informacion sobre los parametros"
+    exit 1
+fi
 
 mostrarAyuda "$1"
 
@@ -52,6 +83,13 @@ fi
 if [[ "$1" == -r ]]
 then
     archivo=$(unzip -Z1 $HOME/Papelera.zip | grep "$2")
+
+    if [[ $? == 1 ]]
+    then
+        echo "Error, el archivo \"$2\" no existe en la papelera"
+        exit 1
+    fi
+
     repetidos=$(echo $(wc -l <<< "$archivo"))
     if [[ $repetidos > 1 ]]
     then
@@ -63,6 +101,11 @@ then
         done
         echo "¿Qué archivo desea recuperar?:"
         read seleccion
+        if [[ $seleccion > $i ]]
+        then
+            echo "Opcion invalida"
+            exit 1
+        fi
         archivo="${rutas[((seleccion-1))]}"/"${archivos[((seleccion-1))]}"
     fi
 
