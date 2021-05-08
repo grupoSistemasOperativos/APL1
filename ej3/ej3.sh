@@ -52,6 +52,13 @@ validarParametros()
         exit 1
     fi
 
+    grep -P "^[0-9]+$" <<< "$3" >> /dev/null
+    if [ $? != 0  ]
+    then
+        echo "El umbral no es un numero"
+        exit 1
+    fi
+
     if [ $3 -lt 0 ]
     then
         echo "especifique cantidad de KB mayor que 0"
@@ -67,11 +74,6 @@ validarParametros()
 
 asignarParametros() 
 {
-    if [[ $# < 6 ]]
-    then 
-        echo "Cantidad incorrecta de parametros"
-        exit 1;
-    fi
 
     i=1;
     while [[ $i < 6 ]]  
@@ -98,6 +100,12 @@ asignarParametros()
     done
 }
 
+if [[ $# < 6 ]]
+then 
+    echo "Cantidad incorrecta de parametros"
+    exit 1;
+fi
+
 mostrarAyuda $1
 asignarParametros "$1" "$2" "$3" "$4" "$5" "$6"
 validarParametros "$directorio" "$directorioSalida" "$umbral"
@@ -107,22 +115,16 @@ array=()
 hayRepetidos=0
 
 #verificar que si es dir relativo, lo pase absoluto (para ver path absoluto siempre en salida)
-grep "^/" <<< "$directorio" >> /dev/null
-if [ $? -eq 1 ]
-then
-    directorio=$(echo $PWD/$directorio)
-fi
-grep "^\." <<< "$directorioSalida" >> /dev/null
-if [ $? -eq 0 ]
-then
-    unset directorioSalida
-fi
-#creacion de array con todos los archivos dentro de $directorio
-mapfile -t array < <(echo "$(find $directorio -type f -size +${umbral}k)")
+directorio=$(realpath "$directorio")
 
-archivoSalida="$directorioSalida/"$(echo "Resultado_[$(date +%Y%m%d%H%m)].log")
+directorioSalida=$(realpath "$directorioSalida")
+
+#creacion de array con todos los archivos dentro de $directorio
+mapfile -t array < <(echo "$(find "$directorio" -type f -size +${umbral}k)")
+
+archivoSalida="$directorioSalida"/$(echo "Resultado_[$(date +%Y%m%d%H%m)].log")
 #creacion de archivo en $directorioSalida
-> $archivoSalida
+> "$archivoSalida"
 
 while [[ ${#array[@]} > 1 ]]
 do
