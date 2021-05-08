@@ -7,10 +7,16 @@ moverArchivos()
     IFS=$'\n';for archivo in $(find "${dirOrigen}" -type f)
     do  
         nombreArchivo=$(grep -o -P "(?<=\/)+.[^\/]*$" <<< "$archivo")
-        extension=$(grep -o -P "(?<=.\.).+" <<< "$nombreArchivo")
+        grep -o -P "^\." <<< "$nombreArchivo" > /dev/null
+
+        if [[ $? == 1 ]]
+        then
+            extension=$(grep -o -P "(?<=.\.).+" <<< "$nombreArchivo")
         
-        extension=${extension^^}
-        mkdir "$dirDestino"/$extension 2> /dev/null
+            extension=${extension^^}
+            mkdir "$dirDestino"/$extension 2> /dev/null
+        fi
+
         mv --backup=numbered "$archivo" "${dirDestino}/$extension"
     done
 }
