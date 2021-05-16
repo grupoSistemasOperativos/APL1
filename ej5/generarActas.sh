@@ -39,7 +39,8 @@ verificarParametros()
         exit 1
     fi
 
-    extension=$(grep -o -P "(?<=\w\.)\w+" <<< "$4")
+    nombreArchivoJson=$(grep -o -P "(?<=\/)+.[^\/]*$" <<< "$4")
+    extension=$(grep -o -P "(?<=.\.).+" <<< "$nombreArchivoJson")
     ruta=$(grep -o -P "^.*(?=(\/))" <<< "$4")
     
     if [[ "$extension" != json || ! -d "$ruta" ]]
@@ -73,9 +74,10 @@ directorioSalida="$4"
 
 > temp.txt
 declare array
-IFS=$'\n';for archivoCsv in $(find "$2" -type f)
+IFS=$'\n';for archivoCsv in $(find "$2" -type f| grep -P "csv$")
 do
-    codMateria=$(grep -o -P "[0-9]+(?=_)(?=_[0-9]+.[0-9A-Za-z]+)" <<< "$archivoCsv")
+    nombreArchivo=$(grep -o -P "(?<=\/)+.[^\/]*$" <<< "$archivoCsv")
+    codMateria=$(grep -o -P "[0-9]+(?=_.+$)" <<< "$nombreArchivo")
     awk -v codMateria=$codMateria -f obtenerNotas.awk "$archivoCsv" >> temp.txt
 done
 
