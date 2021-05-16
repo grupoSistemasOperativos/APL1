@@ -16,7 +16,7 @@ mostrarAyuda()
         echo ""
         echo "Argumentos:"
         echo ""
-        echo "      -d"$'\t'"indica el directorio a monitorear."
+        echo "      -d [DIR]"$'\t'"indica el directorio a monitorear."
         echo "      -o [DIR](opcional)"$'\t'"indica el directorio que contendrá los subdirectorios extensión."
         echo "      -s"$'\t'"Detiene al demonio. No se pasar con los demas parametros."
         exit 0
@@ -25,7 +25,7 @@ mostrarAyuda()
 
 frenarDemonio()
 {
-    if [ $1 == -s ]
+    if [[ $1 == -s ]]
     then
         pid=$(cat .revisarCarpeta.pid 2> /dev/null) 
         
@@ -46,13 +46,13 @@ validarParametros()
 {
     if [[ "$1" != -d  ]]
     then
-        echo "parametro "\"$1\"" incorrecto"
+        echo "parametro "\"$1\"" incorrecto, verifique el help para indicaciones sobre los parametros"
         exit
     fi
     
     if [[ $# > 3 && "$3" != -o  ]]
     then
-        echo "parametro "\"$3\"" incorrecto"
+        echo "parametro "\"$3\"" incorrecto, verifique el help para indicaciones sobre los parametros"
         exit
     fi
     
@@ -74,13 +74,19 @@ validarParametros()
     fi
     
 
-    if [[ $# > 4 ]]
+    if [[ $# > 4 && $5 == -s ]]
     then
         echo "el parametro -s no se debe pasarse con los demas parametros"
         exit
     fi
 
-    if [[ ! -d "$4" && "$4" != "" ]]
+    if [[ $# > 4 ]]
+    then
+        echo "Error, se estan pasando mas parametros de los permitidos"
+        exit
+    fi
+
+    if [[ ! -d "$4" && "$4" != " " ]]
     then
         echo "el parametro 4 debe ser un directorio y que exista"
         exit
@@ -92,7 +98,7 @@ mostrarAyuda $1
 
 frenarDemonio $1
 
-validarParametros $1 "$2" $3 "$4" $5
+validarParametros $1 "$2" $3 "$4" $5 $6
 
 if [ -f .revisarCarpeta.pid ]
 then
