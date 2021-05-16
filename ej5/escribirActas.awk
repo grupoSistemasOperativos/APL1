@@ -1,4 +1,8 @@
 BEGIN{
+    if(cantReg == 0)
+    {
+        exit 1
+    }
     printf("{\n\t\"actas\": [\n")
 }
 
@@ -21,5 +25,10 @@ BEGIN{
         printf("\t\t\t]\n\t\t},\n")
 }
 END{
+    if(cantReg == 0)
+    {
+        printf("Archivos vacios")
+        exit 1
+    }
     printf("\t]\n}")
 }
