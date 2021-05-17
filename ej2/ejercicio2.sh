@@ -50,7 +50,7 @@ validarParametros(){
     if [[ ! -f "$2" ]]
     then
         echo "Error, \"$2\" no es un archivo"
-        exit
+        exit 1
     fi
 
     tipoArchivo=$(file -b --mime-type "$2")
