@@ -14,12 +14,18 @@ mostrarAyuda(){
 
 generarNombresArchivos(){
 
-    path=$(grep -P -o ".+(?=\.)" <<< "$1")
-    extension=$(grep -P -o "[^\.]*$" <<< "$1")
-    fechaYHora=_$(date +%Y%m%d%H%m).
-    echo $path
-    pathLog="$path$fechaYHora""log"
-    pathCompleto="$path$fechaYHora$extension"
+    path=$(grep -P -o ".*(?:\/)" <<< "$1")
+    nombreArchivo=$(grep -o -P "(?<=\/)+.[^\/]*$" <<< "$1")
+    extension=$(grep -o -P "(?<=.\.).+" <<< "$nombreArchivo")
+    if [[ $extension != "" ]]
+    then
+        nombreArchivo=$(grep -o -P ".+(?=\.\w+)" <<< "$nombreArchivo")
+        extension=."$extension"
+    fi
+    fechaYHora=_$(date +%Y%m%d%H%m)
+
+    pathLog="$path""$nombreArchivo"$fechaYHora".log"
+    pathCompleto="$path""$nombreArchivo"$fechaYHora"$extension"
 }
 
 validarParametros(){
@@ -28,6 +34,25 @@ validarParametros(){
         echo "Error, se debe indicar -in como primer parametro"
         exit 1
     fi
+
+    if [[ "$2" == "" ]]
+    then
+        echo "Error, debe indicar, como segundo parametro, el archivo a corregir"
+        exit 1
+    fi
+
+    if [[ ! -r "$2" ]]
+    then
+        echo "Error, \"$2\" no tiene permisos de lectura"
+        exit 1
+    fi
+
+    if [[ ! -f "$2" ]]
+    then
+        echo "Error, \"$2\" no es un archivo"
+        exit
+    fi
+
     tipoArchivo=$(file -b --mime-type "$2")
     if [ $tipoArchivo != "text/plain" ]
     then
@@ -81,17 +106,23 @@ imprimirArchivoLog(){
 
 mostrarAyuda $1
 
-# validarParametros $1 $2
+if [[ $# > 2 ]]
+then
+    echo "Error, se pasaron mas parametros de los permitidos"
+    exit 1
+fi
+
+validarParametros $1 "$2"
 
 pathCompleto=""
 pathLog=""
-generarNombresArchivos $2 
+generarNombresArchivos "$2" 
 
-cantidadCorreciones $2
+cantidadCorreciones "$2"
 cantidadCorreciones=$?
 
-realizarReemplazos $2 $pathCompleto
+realizarReemplazos "$2" "$pathCompleto"
 
-contarInconsistencias $2
+contarInconsistencias "$2"
 
-imprimirArchivoLog $pathLog $cantidadCorreciones $parentesis $preguntas $signosAdmiracion
+imprimirArchivoLog "$pathLog" $cantidadCorreciones $parentesis $preguntas $signosAdmiracion
