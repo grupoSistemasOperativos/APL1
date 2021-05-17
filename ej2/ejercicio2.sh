@@ -34,6 +34,25 @@ validarParametros(){
         echo "Error, se debe indicar -in como primer parametro"
         exit 1
     fi
+
+    if [[ "$2" == "" ]]
+    then
+        echo "Error, debe indicar, como segundo parametro, el archivo a corregir"
+        exit 1
+    fi
+
+    if [[ ! -r "$2" ]]
+    then
+        echo "Error, \"$2\" no tiene permisos de lectura"
+        exit 1
+    fi
+
+    if [[ ! -f "$2" ]]
+    then
+        echo "Error, \"$2\" no es un archivo"
+        exit
+    fi
+
     tipoArchivo=$(file -b --mime-type "$2")
     if [ $tipoArchivo != "text/plain" ]
     then
