@@ -90,15 +90,17 @@ for(( i = 0,j = 0; i < ${#registros[@]};))
     dniPri=$(cut -d ' ' -f 1 <<< "${registros[$i]}")
     ((i++))
     dni=$(cut -d ' ' -f 1 <<< "${registros[$i]}")
-    while [[ $dniPri == $dni && $i < ${#registros[@]} ]];
+    while [[ $dniPri == $dni ]]; 
     do
-        ((j++))        
+        if [ $i -ge ${#registros[@]} ]
+        then
+            break;
+        fi       
         echo -n " $(cut -d ' ' -f 2,3 <<< "${registros[$i]}")" >> temp.txt
         ((i++))
         dni=$(cut -d ' ' -f 1 <<< "${registros[$i]}")
     done
     echo "" >> temp.txt
-    ((j++))
 }
 
 awk -v cantReg=$(wc -l < temp.txt) -f escribirActas.awk temp.txt > "$directorioSalida"

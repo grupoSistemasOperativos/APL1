@@ -13,7 +13,7 @@ BEGIN{
     {
         printf("\t\t\t\t{\n\t\t\t\t\t\"materia\": %d,\n",$i)
         i++
-        printf("\t\t\t\t\t\"nota\": %.2f\n",$i)
+        printf("\t\t\t\t\t\"nota\": %d\n",$i)
         if(i == NF)
             printf("\t\t\t\t}\n")
         else
