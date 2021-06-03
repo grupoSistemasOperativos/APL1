@@ -16,7 +16,7 @@ function calcularNota()
                 total += 0.5        
             }   
     }
-    return (total ? total*10 / (NF-1): 1)
+    return total*10 / (NF-1)
 }
 
 {
