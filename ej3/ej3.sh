@@ -5,7 +5,7 @@
 # APL : 1
 # EJERCICIO N° : 3
 # INTEGRANTES : Axel Kenneth Hellberg 42296528,Tomas Victorio Serravento 42038102,Carolina Luana Huergo 42562990,Axel Joel Cascasi 42200104,Agustin Ratto 42673142
-# ENTREGA : Primera Entrega    
+# ENTREGA : Primer reentrega    
 # FECHA : 28/04/2021
 #
 #
@@ -100,24 +100,28 @@ asignarParametros()
     done
 }
 
-if [[ $# < 6 ]]
-then 
-    echo "Cantidad incorrecta de parametros"
-    exit 1;
-fi
-
 mostrarAyuda $1
-asignarParametros "$1" "$2" "$3" "$4" "$5" "$6"
-validarParametros "$directorio" "$directorioSalida" "$umbral"
 
+# if [[ $# < 6 ]]
+# then 
+#     echo "Cantidad incorrecta de parametros"
+#     exit 1;
+# fi
+
+# asignarParametros "$1" "$2" "$3" "$4" "$5" "$6"
+# validarParametros "$directorio" "$directorioSalida" "$umbral"
+
+directorio="/home/agustin/Escritorio/sistemasOperativos/APL1/pruebas/ej3/ej3/5-Con Subdirectorios/Entrada"
+directorioSalida="/home/agustin/Escritorio/sistemasOperativos/APL1/pruebas/ej3/ej3/5-Con Subdirectorios/Salida"
+umbral=0
 #definicion variables
 array=()
 hayRepetidos=0
 
 #verificar que si es dir relativo, lo pase absoluto (para ver path absoluto siempre en salida)
-directorio=$(realpath "$directorio")
+#directorio=$(realpath "$directorio")
 
-directorioSalida=$(realpath "$directorioSalida")
+#directorioSalida=$(realpath "$directorioSalida")
 
 #creacion de array con todos los archivos dentro de $directorio
 mapfile -t array < <(echo "$(find "$directorio" -type f -size +${umbral}k)")
@@ -129,8 +133,8 @@ archivoSalida="$directorioSalida"/$(echo "Resultado_[$(date +%Y%m%d%H%m)].log")
 while [[ ${#array[@]} > 1 ]]
 do
     resultado=$(IFS=$'\n'; echo "$(diff -qs --from-file=${array[*]})")
-    iguales=$(grep -o -P "((?<=^Files ).*(?= and ))|(?<= and ).*(?= are identical$)" <<< "$resultado")
-
+    iguales=$(grep -o -P "(((?<=^Files ).*(?= and \/))|(?<= and ).*(?= are identical$))|(((?<=^Los archivos ).*(?= y \/))|(?<= y ).*(?= son idénticos$))" <<< "$resultado")
+    IFS=$'\n';echo $iguales
     if [ $? -eq 0 ]
     then
         hayRepetidos=1
@@ -139,7 +143,8 @@ do
             guardarEnArchivo "$archivo" "$archivoSalida"
         done
         echo "" >> "$archivoSalida"
-        mapfile -t array < <(grep -o -P "(?<= and ).*(?= differ$)" <<< "$resultado")
+        #echo $resultado 
+        mapfile -t array < <(grep -o -P "((?<= and ).*(?= differ$))|((?<= y ).*(?= son distintos$))" <<< "$resultado")
     else
         unset array[0]
         mapfile -t array < <(printf '%s\n' "${array[@]}")
