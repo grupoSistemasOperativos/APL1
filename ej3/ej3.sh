@@ -5,7 +5,7 @@
 # APL : 1
 # EJERCICIO N° : 3
 # INTEGRANTES : Axel Kenneth Hellberg 42296528,Tomas Victorio Serravento 42038102,Carolina Luana Huergo 42562990,Axel Joel Cascasi 42200104,Agustin Ratto 42673142
-# ENTREGA : Primera Entrega    
+# ENTREGA : Primer reentrega    
 # FECHA : 28/04/2021
 #
 #
@@ -100,13 +100,14 @@ asignarParametros()
     done
 }
 
+mostrarAyuda $1
+
 if [[ $# < 6 ]]
 then 
     echo "Cantidad incorrecta de parametros"
     exit 1;
 fi
 
-mostrarAyuda $1
 asignarParametros "$1" "$2" "$3" "$4" "$5" "$6"
 validarParametros "$directorio" "$directorioSalida" "$umbral"
 
@@ -129,17 +130,19 @@ archivoSalida="$directorioSalida"/$(echo "Resultado_[$(date +%Y%m%d%H%m)].log")
 while [[ ${#array[@]} > 1 ]]
 do
     resultado=$(IFS=$'\n'; echo "$(diff -qs --from-file=${array[*]})")
-    iguales=$(grep -o -P "((?<=^Files ).*(?= and ))|(?<= and ).*(?= are identical$)" <<< "$resultado")
 
+    buscado=$(grep -o -P "((?<=^Los archivos ).*(?= y \/))|((?<=^Files ).*(?= and \/))" <<< "$resultado" | uniq)
+    encontrados=$(grep -o -P "((?<= and ).*(?= are identical$))|((?<= y ).*(?= son idénticos$))" <<< "$resultado")
     if [ $? -eq 0 ]
     then
         hayRepetidos=1
-        IFS=$'\n';for archivo in $(sort -r <<< "$iguales" | uniq)
+        IFS=$'\n';for archivo in $buscado $encontrados
         do
             guardarEnArchivo "$archivo" "$archivoSalida"
         done
         echo "" >> "$archivoSalida"
-        mapfile -t array < <(grep -o -P "(?<= and ).*(?= differ$)" <<< "$resultado")
+
+        mapfile -t array < <(grep -o -P "((?<= and ).*(?= differ$))|((?<= y ).*(?= son distintos$))" <<< "$resultado")
     else
         unset array[0]
         mapfile -t array < <(printf '%s\n' "${array[@]}")
