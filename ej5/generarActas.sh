@@ -45,7 +45,7 @@ verificarParametros()
     
     if [[ "$extension" != json || ! -d "$ruta" ]]
     then
-        echo "Error en 2do parametro: La ruta no existe o el archivo no tiene extension .json"
+        echo "Error con parametro --salida: La ruta no existe o el archivo no tiene extension .json"
         exit 1
     fi
 
@@ -60,13 +60,15 @@ verificarParametros()
         echo "La ruta" "\"$2\"" "no tiene permiso de lectura"
         exit 1
     fi
-
-    if [[ $# > 4 ]]
-    then 
-        echo "Cantidad de parametros incorrecta"
-    fi
 }
+
 mostrarAyuda "$1"
+
+if [[ $# > 4 ]]
+then 
+    echo "Cantidad de parametros incorrecta"
+    exit 1
+fi
 
 verificarParametros "$1" "$2" "$3" "$4" 
 
