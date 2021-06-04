@@ -55,13 +55,8 @@ validarParametros()
     grep -P "^[0-9]+$" <<< "$3" >> /dev/null
     if [ $? != 0  ]
     then
-        echo "El umbral no es un numero"
-        exit 1
-    fi
-
-    if [ $3 -lt 0 ]
-    then
-        echo "especifique cantidad de KB mayor que 0"
+        echo "Error con el umbral"
+        echo "Debe ser un numero positivo"
         exit 1
     fi
 
@@ -102,7 +97,7 @@ asignarParametros()
 
 mostrarAyuda $1
 
-if [[ $# < 6 ]]
+if [[ $# > 6 ]]
 then 
     echo "Cantidad incorrecta de parametros"
     exit 1;
