@@ -27,10 +27,20 @@ mostrarAyuda()
 verificarParametros()
 {
 
-    if [[ "$1" != --notas || "$3" != --salida ]]
+    if [[ "$1" != --notas ]]
     then
-        echo "El 1er o 3er parametro son incorrectos"
-        exit
+        echo "Error"
+        echo "\"$1\" no es un nombre de parametro valido"
+        echo "Acceda al help para mas informacion de los parametros"
+        exit 1
+    fi
+
+    if [[ "$3" != --salida ]]
+    then
+        echo "Error"
+        echo "\"$3\" no es un nombre de parametro valido"
+        echo "Acceda al help para mas informacion de los parametros"
+        exit 1
     fi
 
     if [[ ! -d "$2" ]]
